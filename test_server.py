@@ -100,6 +100,9 @@ def test_profile_guardrail_accepts_questions_about_documented_experience():
     assert server.is_profile_related_request("¿Qué experiencia tienes con Java?")
     assert server.is_profile_related_request("¿Qué tecnologías aparecen en tu CV?")
     assert server.is_profile_related_request("How did you use Java in your professional experience?")
+    assert server.is_profile_related_request("¿Qué has estudiado?")
+    assert server.is_profile_related_request("¿Qué formación tienes?")
+    assert server.is_profile_related_request("What did you study?")
 
 
 def test_profile_guardrail_rejects_general_technical_questions():
@@ -148,3 +151,17 @@ def test_chat_allows_documented_experience_questions():
     assert response.status_code == 200
     assert response.json == {"reply": "He trabajado con Java."}
     mock_generate.assert_called_once_with("¿Qué experiencia tienes con Java?")
+
+
+def test_chat_allows_studies_question_without_broadening_personal_data_access():
+    with patch.object(server, "GEMINI_API_KEY", "test-key"), patch.object(
+        server, "generate_with_gemini", return_value="La formación documentada incluye FP Grado 3."
+    ) as mock_generate:
+        with server.app.test_client() as client:
+            response = client.post("/api/chat", json={"message": "¿Qué has estudiado?"})
+
+    assert response.status_code == 200
+    assert response.json == {
+        "reply": "La formación documentada incluye FP Grado 3."
+    }
+    mock_generate.assert_called_once_with("¿Qué has estudiado?")
