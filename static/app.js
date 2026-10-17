@@ -39,6 +39,7 @@ const translations = {
     themeToggleDark: 'Cambiar a tema claro',
     themeToggleLight: 'Cambiar a tema oscuro',
     welcome: '¡Hola! Soy el asistente virtual de Juan Pablo. Puedes preguntarme sobre su experiencia profesional, stack o certificaciones documentados en LinkedIn. ¿Qué te gustaría saber?',
+    answerDisclaimer: 'La información completa está disponible en mi LinkedIn; esta respuesta es solo orientativa.',
     infoNotice: '',
     loadingPlaceholder: 'Estoy preparando la respuesta...',
     errorResponse: 'Lo siento, no pude responder ahora mismo: ',
@@ -65,6 +66,7 @@ const translations = {
     themeToggleDark: 'Switch to light theme',
     themeToggleLight: 'Switch to dark theme',
     welcome: 'Hello! I am Juan Pablo\'s virtual assistant. You can ask about his professional experience, tech stack, or certifications documented on LinkedIn. What would you like to know?',
+    answerDisclaimer: 'The complete information is available on my LinkedIn; this response is for guidance only.',
     infoNotice: '',
     loadingPlaceholder: 'Preparing the answer...',
     errorResponse: 'Sorry, I could not answer right now: ',
@@ -227,6 +229,11 @@ function escapeHtml(value) {
 function addMessage(role, text, options = {}) {
   const wrapper = document.createElement('div');
   wrapper.className = `message-row ${role}`;
+  const messageText = String(text || '');
+  const displayedText = role === 'assistant'
+    && !messageText.includes(translations[currentLanguage].answerDisclaimer)
+    ? `${messageText}\n\n${translations[currentLanguage].answerDisclaimer}`
+    : messageText;
 
   if (role === 'assistant') {
     const avatar = document.createElement('div');
@@ -246,7 +253,7 @@ function addMessage(role, text, options = {}) {
   if (options.intro) {
     bubble.dataset.intro = options.intro;
   }
-  bubble.innerHTML = `<div class="whitespace-pre-wrap">${escapeHtml(text || '')}</div>`;
+  bubble.innerHTML = `<div class="whitespace-pre-wrap">${escapeHtml(displayedText)}</div>`;
 
   wrapper.appendChild(bubble);
   chatMessages.appendChild(wrapper);
