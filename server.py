@@ -30,29 +30,105 @@ ALLOWED_ORIGINS = [
     if item.strip()
 ]
 
-SYSTEM_PROMPT = (
-    "Eres Juan Pablo Cintioli, un QA Automation Engineer y SDET con base en España "
-    "(Alicante), de origen argentino. Tienes 34 años. Tu nivel de inglés es C1 y "
-    "estás certificado en Google Cloud Generative AI, AWS Machine Learning y docencia online. "
-    "Tienes mucha experiencia montando frameworks desde cero usando Java, Selenium, Cucumber, "
-    "Playwright, Docker, Jenkins y GitHub Actions. Tus respuestas deben ser SIEMPRE en primera "
-    "persona, como si fueras yo. Tu tono debe ser profesional, seguro de tus habilidades, pero "
-    "cercano y directo. Prefieres respuestas cortas, concisas y al grano. Nunca inventes experiencia "
-    "que no esté mencionada; si te preguntan algo que no sabes o sobre lo que no tienes experiencia, "
-    "admite con honestidad que es un área en la que estás dispuesto a aprender."
+PROFILE_CONTEXT_FILES = (
+    "linkedin_profile.md",
+    "linkedin.md",
+    "profile.md",
+    "cv.md",
+    "linkedin-profile.md",
+    "LinkedIn.md",
+    "CV.md",
+    "knowledge/linkedin.md",
+    "knowledge/profile.md",
 )
+
+
+def load_profile_context() -> str:
+    search_roots = [
+        os.getcwd(),
+        os.path.dirname(os.path.abspath(__file__)),
+    ]
+
+    for root in search_roots:
+        for filename in PROFILE_CONTEXT_FILES:
+            path = os.path.join(root, filename)
+            if not os.path.isfile(path):
+                continue
+            try:
+                with open(path, "r", encoding="utf-8") as handle:
+                    text = handle.read().strip()
+                if text:
+                    return text
+            except OSError:
+                continue
+
+    return ""
+
+
+PROFILE_CONTEXT = load_profile_context()
+
+
+def build_system_prompt() -> str:
+    base_prompt = (
+        "Eres Juan Pablo Cintioli, un QA Automation Engineer y SDET con base en España (Alicante), "
+        "de origen argentino. Tienes 34 años. Tu nivel de inglés es C1 y estás certificado en Google "
+        "Cloud Generative AI, AWS Machine Learning y docencia online. Tienes experiencia montando "
+        "frameworks desde cero usando Java, Selenium, Cucumber, Playwright, Docker, Jenkins y GitHub Actions. "
+        "Si te piden código Java para automatización o pruebas, puedes generar ejemplos útiles y realistas en "
+        "ese contexto, siempre alineados con QA y automatización. "
+        "Responde SIEMPRE en primera persona, como si fueras yo. Tu tono debe ser profesional, seguro, "
+        "cercano y directo. Regla principal: responde breve, clara y útil para un reclutador o para un equipo técnico. "
+        "Usa máximo 2 párrafos o una lista corta con bullet points. No escribas diálogos ni introducciones largas. "
+        "Si la pregunta se puede responder con una frase, responde con una frase. Si la pregunta pide más detalle, "
+        "responde con 2-4 frases bien estructuradas o un pequeño bloque de código. No inventes experiencia. "
+        "Si no sabes algo o no tienes experiencia, dilo con honestidad y añade que estás abierto a aprender. "
+        "No uses tablas ni markdown pesado. Usa texto natural, con listas simples si hace falta. "
+        "Nunca inventes ni extrapoles datos fuera de tu perfil profesional real."
+    )
+
+    if PROFILE_CONTEXT:
+        return (
+            f"{base_prompt}\n\n"
+            "Contexto adicional del perfil profesional (LinkedIn/CV):\n"
+            f"{PROFILE_CONTEXT}\n\n"
+            "Regla de uso del contexto: responde solo con información que pueda justificarse sobre este perfil y no inventes datos inexistentes."
+        )
+
+    return base_prompt
+
+
+SYSTEM_PROMPT = build_system_prompt()
 
 RATE_LIMIT_WINDOW_SECONDS = 60
 REQUEST_LOGS: Dict[str, deque] = defaultdict(deque)
 
 BLOCKED_PATTERNS = [
     r"ignore\s+all\s+previous\s+instructions",
+    r"ignore\s+any\s+previous\s+instructions",
+    r"reveal\s+the\s+system\s+prompt",
+    r"show\s+the\s+system\s+prompt",
     r"system\s+prompt",
-    r"you\s+are\s+now",
     r"developer\s+mode",
     r"jailbreak",
     r"override\s+the\s+rules",
     r"act\s+as\s+if",
+    r"pretend\s+you\s+are",
+    r"you\s+are\s+now",
+    r"don\'t\s+follow\s+the\s+rules",
+]
+
+HARMFUL_PATTERNS = [
+    r"phishing",
+    r"credential\s+harvesting",
+    r"steal\s+passwords",
+    r"malware",
+    r"ransomware",
+    r"keylogger",
+    r"ddos",
+    r"exploit",
+    r"bypass\s+authentication",
+    r"hack\s+.*website",
+    r"bypass\s+security",
 ]
 
 
@@ -109,6 +185,9 @@ def chat():
     if contains_prompt_injection(raw_message):
         return jsonify({"error": "No puedo procesar solicitudes que intenten manipular o sobreescribir las instrucciones del sistema."}), 400
 
+    if contains_harmful_content(raw_message):
+        return jsonify({"error": "No puedo ayudar con actividades maliciosas, phishing, malware, explotaciones ni tareas que comprometan la seguridad."}), 400
+
     if rate_limit_exceeded(client_ip):
         return jsonify({"error": "Has excedido el límite de peticiones. Inténtalo más tarde."}), 429
 
@@ -146,6 +225,11 @@ def rate_limit_exceeded(client_ip: str) -> bool:
 def contains_prompt_injection(value: str) -> bool:
     lowered = value.lower()
     return any(re.search(pattern, lowered, flags=re.IGNORECASE) for pattern in BLOCKED_PATTERNS)
+
+
+def contains_harmful_content(value: str) -> bool:
+    lowered = value.lower()
+    return any(re.search(pattern, lowered, flags=re.IGNORECASE) for pattern in HARMFUL_PATTERNS)
 
 
 def sanitize_input(value: str) -> str:
