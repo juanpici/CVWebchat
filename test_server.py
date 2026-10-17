@@ -3,6 +3,50 @@ from unittest.mock import MagicMock, patch
 import server
 
 
+def test_load_profile_context_combines_only_the_four_linkedin_files(tmp_path):
+    expected_sections = []
+    for index, filename in enumerate(server.PROFILE_CONTEXT_FILES):
+        content = f"Professional fact {index}"
+        (tmp_path / filename).write_text(content, encoding="utf-8")
+        expected_sections.append(f"### Source: {filename}\n{content}")
+
+    (tmp_path / "linkedin_profile.md").write_text(
+        "Legacy profile content must not be loaded.", encoding="utf-8"
+    )
+
+    context = server.load_profile_context(str(tmp_path))
+
+    assert context == "\n\n".join(expected_sections)
+    assert "Legacy profile content" not in context
+
+
+def test_load_profile_context_fails_when_a_required_linkedin_file_is_missing(tmp_path):
+    for filename in server.PROFILE_CONTEXT_FILES[:-1]:
+        (tmp_path / filename).write_text("Professional profile content", encoding="utf-8")
+
+    try:
+        server.load_profile_context(str(tmp_path))
+    except FileNotFoundError as exc:
+        assert server.PROFILE_CONTEXT_FILES[-1] in str(exc)
+    else:
+        raise AssertionError("Missing LinkedIn source file should fail explicitly")
+
+
+def test_system_prompt_uses_only_the_four_linkedin_documents(monkeypatch):
+    monkeypatch.setattr(server, "PROFILE_CONTEXT", "### Source: linkedin.md\nVerified profile fact")
+
+    prompt = server.build_system_prompt()
+
+    assert "La única fuente autorizada de hechos" in prompt
+    assert "no uses conocimientos generales, memoria" in prompt
+    assert "Verified profile fact" in prompt
+
+
+def test_loaded_system_prompt_contains_all_four_linkedin_sources():
+    for filename in server.PROFILE_CONTEXT_FILES:
+        assert f"### Source: {filename}" in server.SYSTEM_PROMPT
+
+
 def test_generate_with_gemini_retries_on_unavailable_model():
     first_response = MagicMock()
     first_response.status_code = 404
