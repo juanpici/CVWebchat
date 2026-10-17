@@ -28,3 +28,25 @@ def test_generate_with_gemini_retries_on_unavailable_model():
     assert result == "Respuesta de prueba correcta"
     assert mock_post.call_count == 2
     assert "gemini-3.8-flash" in mock_post.call_args_list[1][0][0]
+
+
+def test_generate_with_gemini_continues_incomplete_reply():
+    first_response = MagicMock()
+    first_response.status_code = 200
+    first_response.json.return_value = {
+        "candidates": [{"content": {"parts": [{"text": "He trabajado con Selenium y Playwright"}]}}]
+    }
+
+    second_response = MagicMock()
+    second_response.status_code = 200
+    second_response.json.return_value = {
+        "candidates": [{"content": {"parts": [{"text": ", además con Java, Docker y Jenkins en CI/CD."}]}}]
+    }
+
+    with patch.object(server, "MODEL_NAME", "gemini-3.8-flash"), patch.object(
+        server, "MODEL_FALLBACKS", []
+    ), patch.object(server.requests, "post", side_effect=[first_response, second_response]) as mock_post:
+        result = server.generate_with_gemini("¿Qué stack usas?")
+
+    assert result == "He trabajado con Selenium y Playwright, además con Java, Docker y Jenkins en CI/CD."
+    assert mock_post.call_count == 2

@@ -176,49 +176,81 @@ def extract_gemini_error(response) -> str:
     return str(message)
 
 
-def generate_with_gemini(user_message: str) -> str:
+def call_gemini_once(model_name: str, user_message: str, system_prompt: str = SYSTEM_PROMPT):
     import requests
 
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+    body = {
+        "system_instruction": {"parts": [{"text": system_prompt}]},
+        "contents": [{"role": "user", "parts": [{"text": user_message}]}],
+        "generationConfig": {
+            "temperature": 0.2,
+            "topP": 0.8,
+            "topK": 40,
+            "maxOutputTokens": 1024,
+        },
+    }
+
+    response = requests.post(
+        url,
+        json=body,
+        timeout=20,
+        headers={"Content-Type": "application/json"},
+    )
+
+    if response.status_code == 429:
+        raise ValueError("La cuota gratuita de Gemini ha sido excedida o está temporalmente limitada.")
+
+    if response.status_code == 403:
+        raise ValueError("La API de Gemini no está autorizada para esta clave o cuenta.")
+
+    if response.status_code >= 400:
+        last_error = extract_gemini_error(response)
+        raise ValueError(last_error)
+
+    data = response.json()
+    content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+    reply = "".join(part.get("text", "") for part in content if isinstance(part, dict))
+    if not reply.strip():
+        raise ValueError("La API respondió vacía.")
+
+    return reply.strip()
+
+
+def needs_continuation(reply: str) -> bool:
+    stripped = reply.strip()
+    if not stripped:
+        return False
+    if stripped.endswith((".", "!", "?", ";", ":", "…")):
+        return False
+    lowered = stripped.lower()
+    connector_pattern = re.compile(r"\b(y|con|ademas|además|también|tambien|pero|aunque|porque|sin embargo)\b")
+    return len(stripped) < 220 and bool(connector_pattern.search(lowered))
+
+
+def generate_with_gemini(user_message: str) -> str:
     last_error = None
     for model_name in get_model_candidates(MODEL_NAME):
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
-        body = {
-            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-            "contents": [{"role": "user", "parts": [{"text": user_message}]}],
-            "generationConfig": {
-                "temperature": 0.2,
-                "topP": 0.8,
-                "topK": 40,
-                "maxOutputTokens": 512,
-            },
-        }
-
-        response = requests.post(
-            url,
-            json=body,
-            timeout=20,
-            headers={"Content-Type": "application/json"},
-        )
-
-        if response.status_code == 429:
-            raise ValueError("La cuota gratuita de Gemini ha sido excedida o está temporalmente limitada.")
-
-        if response.status_code == 403:
-            raise ValueError("La API de Gemini no está autorizada para esta clave o cuenta.")
-
-        if response.status_code >= 400:
-            last_error = extract_gemini_error(response)
+        try:
+            reply = call_gemini_once(model_name, user_message)
+        except ValueError as exc:
+            last_error = str(exc)
             message_lower = last_error.lower()
             if "not available" in message_lower or "not found" in message_lower or "model not" in message_lower:
                 continue
             raise ValueError(last_error)
 
-        data = response.json()
-        content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-        reply = "".join(part.get("text", "") for part in content if isinstance(part, dict))
-
-        if not reply.strip():
-            raise ValueError("La API respondió vacía.")
+        if needs_continuation(reply):
+            continuation_prompt = (
+                "Tu respuesta anterior quedó incompleta. Continúa exactamente desde el punto en el que se cortó, "
+                "sin repetir el texto anterior y sin añadir explicaciones. Devuelve solo la continuación.\n\n"
+                f"Respuesta anterior:\n{reply}"
+            )
+            continuation = call_gemini_once(model_name, continuation_prompt, system_prompt="Eres un asistente que completa respuestas truncadas sin repetir texto.")
+            if continuation.startswith((",", ";", ":", "-", "(", "[")):
+                reply = f"{reply.strip()}{continuation.strip()}".strip()
+            else:
+                reply = f"{reply.strip()} {continuation.strip()}".strip()
 
         return reply.strip()
 
