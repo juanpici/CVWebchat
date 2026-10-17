@@ -98,6 +98,11 @@ def test_generate_with_gemini_continues_incomplete_reply():
 
 def test_profile_guardrail_accepts_questions_about_documented_experience():
     assert server.is_profile_related_request("¿Qué experiencia tienes con Java?")
+    assert server.is_profile_related_request("¿Cuál es tu experiencia laboral?")
+    assert server.is_profile_related_request("Cuéntame sobre tu experiencia")
+    assert server.is_profile_related_request("Háblame de tu experiencia profesional")
+    assert server.is_profile_related_request("Tell me about your work experience")
+    assert server.is_profile_related_request("What is your professional background?")
     assert server.is_profile_related_request("¿Qué tecnologías aparecen en tu CV?")
     assert server.is_profile_related_request("How did you use Java in your professional experience?")
     assert server.is_profile_related_request("¿Qué has estudiado?")
@@ -151,6 +156,19 @@ def test_chat_allows_documented_experience_questions():
     assert response.status_code == 200
     assert response.json == {"reply": "He trabajado con Java."}
     mock_generate.assert_called_once_with("¿Qué experiencia tienes con Java?")
+
+
+def test_chat_allows_natural_work_experience_question():
+    message = "¿Cuál es tu experiencia laboral?"
+    with patch.object(server, "GEMINI_API_KEY", "test-key"), patch.object(
+        server, "generate_with_gemini", return_value="La experiencia documentada incluye..."
+    ) as mock_generate:
+        with server.app.test_client() as client:
+            response = client.post("/api/chat", json={"message": message})
+
+    assert response.status_code == 200
+    assert response.json == {"reply": "La experiencia documentada incluye..."}
+    mock_generate.assert_called_once_with(message)
 
 
 def test_chat_allows_studies_question_without_broadening_personal_data_access():
