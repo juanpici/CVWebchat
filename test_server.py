@@ -143,6 +143,37 @@ def test_chat_does_not_send_out_of_scope_or_personal_requests_to_gemini():
     mock_generate.assert_not_called()
 
 
+def test_chat_returns_calm_response_to_insults_and_threats_without_calling_gemini():
+    with patch.object(server, "generate_with_gemini") as mock_generate:
+        with server.app.test_client() as client:
+            for message in (
+                "Eres un idiota",
+                "Eres una inútil",
+                "Imbécil",
+                "Te voy a matar",
+                "I will hurt you",
+                "I'm going to kill you",
+            ):
+                response = client.post("/api/chat", json={"message": message})
+                assert response.status_code == 200
+                assert response.json == {"reply": server.ABUSIVE_MESSAGE_REPLY}
+
+    mock_generate.assert_not_called()
+
+
+def test_chat_does_not_treat_normal_profile_questions_as_abusive():
+    message = "¿Cuál es tu experiencia laboral?"
+    with patch.object(server, "GEMINI_API_KEY", "test-key"), patch.object(
+        server, "generate_with_gemini", return_value="Experiencia documentada."
+    ) as mock_generate:
+        with server.app.test_client() as client:
+            response = client.post("/api/chat", json={"message": message})
+
+    assert response.status_code == 200
+    assert response.json == {"reply": "Experiencia documentada."}
+    mock_generate.assert_called_once_with(message)
+
+
 def test_chat_allows_documented_experience_questions():
     with patch.object(server, "GEMINI_API_KEY", "test-key"), patch.object(
         server, "generate_with_gemini", return_value="He trabajado con Java."

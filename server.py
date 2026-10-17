@@ -144,6 +144,23 @@ HARMFUL_PATTERNS = [
     r"bypass\s+security",
 ]
 
+ABUSIVE_MESSAGE_PATTERNS = [
+    r"\b(?:eres|sos|you are|youre)\s+(?:(?:un|una|a|an)\s+)?"
+    r"(?:idiota|imbecil|inutil|estupido|estupida|basura|mierda|"
+    r"idiot|moron|useless|stupid|piece of shit)\b",
+    r"\b(?:idiota|imbecil|gilipollas|capullo|pendejo|cabron|"
+    r"idiot|moron|dumbass|asshole|bitch)\b",
+    r"\b(?:hijo de puta|hija de puta|vete a la mierda|fuck you|you suck)\b",
+    r"\b(?:te voy a matar|voy a matarte|te matare|vas a morir|"
+    r"te voy a hacer dano|voy a hacerte dano|te voy a romper|te voy a pegar|"
+    r"te voy a golpear|te reviento|voy a por ti|"
+    r"i will kill you|i(?:'|’)ll kill you|i(?:'|’)m going to kill you|"
+    r"i will hurt you|i(?:'|’)m going to hurt you|ill come for you|"
+    r"im coming for you)\b",
+]
+
+ABUSIVE_MESSAGE_REPLY = "te aconsejo calmarte y volver cuando estes mas tranquilo ;)"
+
 PERSONAL_DATA_TERMS = (
     "edad", "cuantos anos tienes", "fecha de nacimiento", "cumpleanos", "domicilio",
     "direccion", "address", "codigo postal", "postal code", "donde vives", "donde resides",
@@ -221,6 +238,11 @@ def is_profile_related_request(value: str) -> bool:
     )
 
 
+def is_abusive_message(value: str) -> bool:
+    normalized = normalize_text(value)
+    return any(re.search(pattern, normalized) for pattern in ABUSIVE_MESSAGE_PATTERNS)
+
+
 @app.after_request
 def set_security_headers(response):
     response.headers["X-Frame-Options"] = "DENY"
@@ -270,6 +292,9 @@ def chat():
 
     if len(raw_message) > MAX_INPUT_CHARS:
         return jsonify({"error": f"El mensaje supera el máximo permitido ({MAX_INPUT_CHARS} caracteres)."}), 413
+
+    if is_abusive_message(raw_message):
+        return jsonify({"reply": ABUSIVE_MESSAGE_REPLY})
 
     if contains_prompt_injection(raw_message):
         return jsonify({"error": "No puedo procesar solicitudes que intenten manipular o sobreescribir las instrucciones del sistema."}), 400
