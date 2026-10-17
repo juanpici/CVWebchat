@@ -18,13 +18,13 @@ def test_generate_with_gemini_retries_on_unavailable_model():
         ]
     }
 
-    with patch.object(server, "MODEL_NAME", "gemini-2.0-flash"), patch.object(
+    with patch.object(server, "MODEL_NAME", "gemini-2.5-flash"), patch.object(
         server,
         "MODEL_FALLBACKS",
-        ["gemini-2.5-flash", "gemini-2.0-flash-lite"],
+        ["gemini-3.8-flash", "gemini-2.0-flash-lite"],
     ), patch.object(server.requests, "post", side_effect=[first_response, second_response]) as mock_post:
         result = server.generate_with_gemini("¿Puedes hablarme de ti?")
 
     assert result == "Respuesta de prueba correcta"
     assert mock_post.call_count == 2
-    assert "gemini-2.5-flash" in mock_post.call_args_list[1][0][0]
+    assert "gemini-3.8-flash" in mock_post.call_args_list[1][0][0]

@@ -15,8 +15,9 @@ load_dotenv()
 app = Flask(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
 MODEL_FALLBACKS = [
+    "gemini-3.8-flash",
     "gemini-2.5-flash",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
