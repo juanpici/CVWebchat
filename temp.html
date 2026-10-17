@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' http://localhost:5000 https://generativelanguage.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';" />
+    <title>CV Chatbot | Juan Pablo Cintioli</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <div class="app-panel">
+        <header class="topbar">
+          <div class="brand-wrap">
+            <div class="brand-mark">J</div>
+            <div class="brand-copy">
+              <span class="badge">v3</span>
+              <h1>Juan Pablo Cintioli</h1>
+              <p>CV Assistant · QA Automation Engineer · SDET</p>
+            </div>
+          </div>
+
+          <div class="top-actions">
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+            <a href="https://www.linkedin.com/in/juan-pablo-cintioli-sdet" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+          </div>
+        </header>
+
+        <div class="presence-panel">
+          <div id="avatarScene" class="avatar-scene" aria-label="Retrato profesional de Juan Pablo Cintioli">
+            <div class="avatar-shadow"></div>
+            <div class="avatar-figure">
+              <div class="avatar-head">
+                <div class="avatar-hair"></div>
+                <div class="avatar-face">
+                  <span class="eye left"></span>
+                  <span class="eye right"></span>
+                  <span class="nose"></span>
+                  <span class="mouth"></span>
+                </div>
+              </div>
+              <div class="avatar-neck"></div>
+              <div class="avatar-body"></div>
+              <div class="avatar-shirt"></div>
+              <div class="avatar-arm left"></div>
+              <div class="avatar-arm right"></div>
+              <div class="laptop">
+                <div class="screen"></div>
+                <div class="base"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="presence-copy">
+            <span class="presence-pill">Disponible para equipos</span>
+            <h2>QA Automation &amp; SDET</h2>
+            <p>Especialista en calidad de software, automatización de pruebas y mejora continua para equipos que buscan velocidad sin perder fiabilidad.</p>
+          </div>
+        </div>
+
+        <main class="chat-panel">
+          <div id="chatMessages" class="chat-scrollbar" aria-live="polite"></div>
+        </main>
+
+        <footer class="composer-panel">
+          <div id="typingIndicator" class="typing-indicator hidden" aria-live="polite">
+            <span class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span>Juan Pablo está escribiendo...</span>
+          </div>
+
+          <form id="chatForm" class="composer">
+            <label class="sr-only" for="userInput">Escribe tu pregunta</label>
+            <textarea id="userInput" rows="1" placeholder="Pregunta sobre mi experiencia, stack, certificaciones o CV..."></textarea>
+            <button id="sendButton" type="submit">Enviar</button>
+          </form>
+        </footer>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

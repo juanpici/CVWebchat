@@ -8,57 +8,82 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
   </head>
-  <body class="bg-slate-100 text-slate-800 antialiased">
-    <div class="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
-      <div class="mx-auto max-w-6xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft">
-        <header class="border-b border-slate-200 bg-slate-50 px-4 py-4 sm:px-6">
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3 sm:gap-4">
-              <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-sky-500 text-lg font-bold text-white shadow-lg shadow-blue-600/20">
-                J
-              </div>
-              <div>
-                <span class="mb-1 inline-flex items-center rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-700">
-                  v3
-                </span>
-                <h1 class="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
-                  Juan Pablo Cintioli
-                </h1>
-                <p class="text-xs text-slate-600 sm:text-sm">
-                  CV Assistant · QA Automation Engineer · SDET
-                </p>
-              </div>
+  <body>
+    <div class="app-shell">
+      <div class="app-panel">
+        <header class="topbar">
+          <div class="brand-wrap">
+            <div class="brand-mark">J</div>
+            <div class="brand-copy">
+              <h1>Juan Pablo Cintioli</h1>
+              <p data-i18n="brandSubtitle">CV Assistant · QA Automation Engineer · SDET</p>
             </div>
+          </div>
 
-            <div class="flex items-center gap-2 sm:gap-3">
-              <a href="https://www.linkedin.com/in/juan-pablo-cintioli-sdet" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700">
-                LinkedIn
-              </a>
-              <a href="https://github.com/" target="_blank" rel="noreferrer" class="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 transition hover:border-blue-200 hover:text-blue-700">
-                GitHub
-              </a>
+          <div class="top-actions">
+            <div class="lang-toggle" aria-label="Selector de idioma" role="tablist">
+              <button type="button" class="lang-option active" data-lang="es" aria-pressed="true">ES</button>
+              <button type="button" class="lang-option" data-lang="en" aria-pressed="false">EN</button>
             </div>
+            <button id="themeToggle" class="theme-toggle" type="button" aria-label="Cambiar tema">🌙</button>
+            <a href="https://www.linkedin.com/in/juan-pablo-cintioli-sdet" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href="https://www.credly.com/users/juan-pablo-cintioli" target="_blank" rel="noreferrer">Badges</a>
+            <a href="https://github.com/juanpici" target="_blank" rel="noreferrer">GitHub</a>
           </div>
         </header>
 
-        <main class="bg-slate-50 p-3 sm:p-4">
-          <div id="chatMessages" class="chat-scrollbar flex h-[62vh] min-h-[420px] flex-col gap-4 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-3 sm:p-5" aria-live="polite"></div>
-        </main>
-
-        <footer class="border-t border-slate-200 bg-white px-3 pb-3 pt-4 sm:px-5 sm:pb-5">
-          <div id="typingIndicator" class="mb-3 hidden items-center gap-2 text-sm text-slate-500">
-            <span class="flex gap-1">
-              <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.3s]"></span>
-              <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500 [animation-delay:-0.15s]"></span>
-              <span class="h-2 w-2 animate-bounce rounded-full bg-blue-500"></span>
-            </span>
-            <span>Juan Pablo está escribiendo...</span>
+        <div class="presence-panel">
+          <div id="avatarScene" class="avatar-scene" aria-label="Retrato profesional de Juan Pablo Cintioli">
+            <div class="portrait-frame">
+              <img src="/static/hero.png" alt="Juan Pablo Cintioli" onerror="this.onerror=null; this.src='/static/profile-photo.jpg';" />
+            </div>
           </div>
 
-          <form id="chatForm" class="flex items-end gap-3">
-            <label class="sr-only" for="userInput">Escribe tu pregunta</label>
-            <textarea id="userInput" rows="1" class="max-h-32 min-h-[52px] flex-1 resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-blue-400 focus:outline-none focus:ring-4 focus:ring-blue-100" placeholder="Pregunta sobre mi experiencia, stack, certificaciones o CV..."></textarea>
-            <button id="sendButton" type="submit" class="inline-flex h-[52px] items-center justify-center rounded-2xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400">Enviar</button>
+          <div class="presence-copy">
+            <span class="presence-pill">SDET</span>
+            <h2 data-i18n="heroTitle">SDET - Ingeniero de Pruebas</h2>
+            <p data-i18n="heroDescription">Especialista en automatización de pruebas, calidad de software y validación de sistemas con foco en robustez, velocidad y trazabilidad.</p>
+
+            <div class="presence-meta">
+              <div class="meta-box">
+                <span class="meta-label" data-i18n="studiesLabel">Estudios</span>
+                <ul>
+                  <li data-i18n="study1">Gobierno de España — FP Grado 3. Ciclo Formativo de Grado Superior en Informática.</li>
+                  <li data-i18n="study2">Colegio Salesiano San José — Técnico en Programación Informática.</li>
+                </ul>
+              </div>
+
+              <div class="meta-box">
+                <span class="meta-label" data-i18n="certsLabel">Certificaciones</span>
+                <ul>
+                  <li data-i18n="cert1">IFCT0109 — Seguridad Informática.</li>
+                  <li data-i18n="cert2">Google Cloud — GenAI Leader.</li>
+                  <li data-i18n="cert3">AWS Machine Learning MLA CO1</li>
+                  <li data-i18n="cert4">Inglés Nivel C1</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <main class="chat-panel">
+          <div id="chatMessages" class="chat-scrollbar" aria-live="polite"></div>
+        </main>
+
+        <footer class="composer-panel">
+          <div id="typingIndicator" class="typing-indicator hidden" aria-live="polite">
+            <span class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </span>
+            <span data-i18n="typingIndicator">Juan Pablo está escribiendo...</span>
+          </div>
+
+          <form id="chatForm" class="composer">
+            <label class="sr-only" for="userInput" data-i18n="inputLabel">Escribe tu pregunta</label>
+            <textarea id="userInput" rows="1" data-i18n-placeholder="inputPlaceholder" placeholder="Pregunta sobre mi experiencia, stack, certificaciones o CV..."></textarea>
+            <button id="sendButton" type="submit" data-i18n="sendButton">Enviar</button>
           </form>
         </footer>
       </div>
