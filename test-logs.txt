@@ -1,0 +1,4 @@
+INFO     conftest:conftest.py:35 Performing health check on https://kiterinha.business/
+DEBUG    urllib3.connectionpool:connectionpool.py:1062 Starting new HTTPS connection (1): kiterinha.business:443
+DEBUG    urllib3.connectionpool:connectionpool.py:544 https://kiterinha.business:443 "GET / HTTP/1.1" 200 None
+INFO     conftest:conftest.py:41 Health check passed: https://kiterinha.business/ is reachable

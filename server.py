@@ -15,7 +15,12 @@ load_dotenv()
 app = Flask(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_FALLBACKS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+]
 MAX_INPUT_CHARS = int(os.getenv("MAX_INPUT_CHARS", "500"))
 RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "20"))
 ALLOWED_ORIGINS = [
@@ -149,50 +154,76 @@ def sanitize_input(value: str) -> str:
     return cleaned
 
 
+def get_model_candidates(primary_model: str) -> list[str]:
+    ordered = []
+    seen = set()
+    for model_name in [primary_model, *MODEL_FALLBACKS]:
+        if model_name and model_name not in seen:
+            ordered.append(model_name)
+            seen.add(model_name)
+    return ordered
+
+
+def extract_gemini_error(response) -> str:
+    try:
+        error_payload = response.json()
+    except ValueError:
+        return "No se pudo obtener respuesta."
+
+    error = error_payload.get("error", {})
+    message = error.get("message") or error.get("status") or "No se pudo obtener respuesta."
+    return str(message)
+
+
 def generate_with_gemini(user_message: str) -> str:
     import requests
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL_NAME}:generateContent?key={GEMINI_API_KEY}"
-    body = {
-        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": [{"text": user_message}]}],
-        "generationConfig": {
-            "temperature": 0.2,
-            "topP": 0.8,
-            "topK": 40,
-            "maxOutputTokens": 512,
-        },
-    }
+    last_error = None
+    for model_name in get_model_candidates(MODEL_NAME):
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={GEMINI_API_KEY}"
+        body = {
+            "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+            "contents": [{"role": "user", "parts": [{"text": user_message}]}],
+            "generationConfig": {
+                "temperature": 0.2,
+                "topP": 0.8,
+                "topK": 40,
+                "maxOutputTokens": 512,
+            },
+        }
 
-    response = requests.post(
-        url,
-        json=body,
-        timeout=20,
-        headers={"Content-Type": "application/json"},
-    )
+        response = requests.post(
+            url,
+            json=body,
+            timeout=20,
+            headers={"Content-Type": "application/json"},
+        )
 
-    if response.status_code == 429:
-        raise ValueError("La cuota gratuita de Gemini ha sido excedida o está temporalmente limitada.")
+        if response.status_code == 429:
+            raise ValueError("La cuota gratuita de Gemini ha sido excedida o está temporalmente limitada.")
 
-    if response.status_code == 403:
-        raise ValueError("La API de Gemini no está autorizada para esta clave o cuenta.")
+        if response.status_code == 403:
+            raise ValueError("La API de Gemini no está autorizada para esta clave o cuenta.")
 
-    if response.status_code >= 400:
-        try:
-            error_payload = response.json()
-            message = error_payload.get("error", {}).get("message", "No se pudo obtener respuesta.")
-        except ValueError:
-            message = "No se pudo obtener respuesta."
-        raise ValueError(message)
+        if response.status_code >= 400:
+            last_error = extract_gemini_error(response)
+            message_lower = last_error.lower()
+            if "not available" in message_lower or "not found" in message_lower or "model not" in message_lower:
+                continue
+            raise ValueError(last_error)
 
-    data = response.json()
-    content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-    reply = "".join(part.get("text", "") for part in content if isinstance(part, dict))
+        data = response.json()
+        content = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+        reply = "".join(part.get("text", "") for part in content if isinstance(part, dict))
 
-    if not reply.strip():
-        raise ValueError("La API respondió vacía.")
+        if not reply.strip():
+            raise ValueError("La API respondió vacía.")
 
-    return reply.strip()
+        return reply.strip()
+
+    if last_error:
+        raise ValueError(last_error)
+    raise ValueError("No se pudo obtener respuesta de Gemini.")
 
 
 if __name__ == "__main__":
