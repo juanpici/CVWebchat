@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: cv-chatbot-v3
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.0-flash
+      - key: MAX_INPUT_CHARS
+        value: "500"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "20"
