@@ -35,7 +35,7 @@
         <div class="presence-panel">
           <div id="avatarScene" class="avatar-scene" aria-label="Retrato profesional de Juan Pablo Cintioli">
             <div class="portrait-frame">
-              <img src="/static/hero.png" alt="Juan Pablo Cintioli" onerror="this.onerror=null; this.src='/static/profile-photo.jpg';" />
+              <img class="hero-avatar is-active" data-avatar-state="standing" src="/static/STANDING.png" alt="Juan Pablo Cintioli" onerror="this.onerror=null; this.src='/static/hero.png';" />
             </div>
           </div>
 
@@ -44,25 +44,28 @@
             <h2 data-i18n="heroTitle">SDET - Ingeniero de Pruebas</h2>
             <p data-i18n="heroDescription">Especialista en automatización de pruebas, calidad de software y validación de sistemas con foco en robustez, velocidad y trazabilidad.</p>
 
-            <div class="presence-meta">
-              <div class="meta-box">
-                <span class="meta-label" data-i18n="studiesLabel">Estudios</span>
-                <ul>
-                  <li data-i18n="study1">Gobierno de España — FP Grado 3. Ciclo Formativo de Grado Superior en Informática.</li>
-                  <li data-i18n="study2">Colegio Salesiano San José — Técnico en Programación Informática.</li>
-                </ul>
-              </div>
+            <details class="profile-details" open>
+              <summary data-i18n="profileDetails">Estudios y certificaciones</summary>
+              <div class="presence-meta">
+                <div class="meta-box">
+                  <span class="meta-label" data-i18n="studiesLabel">Estudios</span>
+                  <ul>
+                    <li data-i18n="study1">Gobierno de España — FP Grado 3. Ciclo Formativo de Grado Superior en Informática.</li>
+                    <li data-i18n="study2">Colegio Salesiano San José — Técnico en Programación Informática.</li>
+                  </ul>
+                </div>
 
-              <div class="meta-box">
-                <span class="meta-label" data-i18n="certsLabel">Certificaciones</span>
-                <ul>
-                  <li data-i18n="cert1">IFCT0109 — Seguridad Informática.</li>
-                  <li data-i18n="cert2">Google Cloud — GenAI Leader.</li>
-                  <li data-i18n="cert3">AWS Machine Learning MLA CO1</li>
-                  <li data-i18n="cert4">Inglés Nivel C1</li>
-                </ul>
+                <div class="meta-box">
+                  <span class="meta-label" data-i18n="certsLabel">Certificaciones</span>
+                  <ul>
+                    <li data-i18n="cert1">IFCT0109 — Seguridad Informática.</li>
+                    <li data-i18n="cert2">Google Cloud — GenAI Leader.</li>
+                    <li data-i18n="cert3">AWS Machine Learning MLA CO1</li>
+                    <li data-i18n="cert4">Inglés Nivel C1</li>
+                  </ul>
+                </div>
               </div>
-            </div>
+            </details>
           </div>
         </div>
 

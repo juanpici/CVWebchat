@@ -5,11 +5,22 @@ const sendButton = document.getElementById('sendButton');
 const typingIndicator = document.getElementById('typingIndicator');
 const themeToggle = document.getElementById('themeToggle');
 const avatarScene = document.getElementById('avatarScene');
+const profileDetails = document.querySelector('.profile-details');
 const langButtons = Array.from(document.querySelectorAll('.lang-option'));
+const avatarPoseSources = {
+  greeting: '/static/avatar_frames/Greeting.png',
+  thinking: '/static/avatar_frames/THINKING.png',
+  talking: '/static/avatar_frames/TALKING.png',
+  pointing: '/static/avatar_frames/POINTING.png',
+  approval: '/static/avatar_frames/Approbe.png',
+};
+const avatarFrames = new Map();
+let avatarPoseTimer;
 
 const translations = {
   es: {
     brandSubtitle: 'CV Assistant · QA Automation Engineer · SDET',
+    profileDetails: 'Estudios y certificaciones',
     heroTitle: 'SDET - Ingeniero de Pruebas',
     heroDescription: 'Especialista en automatización de pruebas, calidad de software y validación de sistemas con foco en robustez, velocidad y trazabilidad.',
     studiesLabel: 'Estudios',
@@ -23,6 +34,7 @@ const translations = {
     typingIndicator: 'Juan Pablo está escribiendo...',
     inputLabel: 'Escribe tu pregunta',
     inputPlaceholder: 'Pregunta sobre mi experiencia, stack, certificaciones o CV...',
+    inputPlaceholderMobile: 'Pregunta sobre mi CV...',
     sendButton: 'Enviar',
     themeToggleDark: 'Cambiar a tema claro',
     themeToggleLight: 'Cambiar a tema oscuro',
@@ -34,6 +46,7 @@ const translations = {
   },
   en: {
     brandSubtitle: 'CV Assistant · QA Automation Engineer · SDET',
+    profileDetails: 'Education and certifications',
     heroTitle: 'SDET - Software Test Engineer',
     heroDescription: 'Specialist in test automation, software quality, and system validation with a focus on robustness, speed, and traceability.',
     studiesLabel: 'Education',
@@ -47,6 +60,7 @@ const translations = {
     typingIndicator: 'Juan Pablo is typing...',
     inputLabel: 'Write your question',
     inputPlaceholder: 'Ask about my experience, stack, certifications, or CV...',
+    inputPlaceholderMobile: 'Ask about my CV...',
     sendButton: 'Send',
     themeToggleDark: 'Switch to light theme',
     themeToggleLight: 'Switch to dark theme',
@@ -62,7 +76,69 @@ let isLoading = false;
 let currentLanguage = localStorage.getItem('language') || 'es';
 
 function updateAvatarState() {
-  avatarScene.classList.toggle('speaking', isLoading);
+  avatarScene.classList.toggle('thinking', isLoading);
+  if (isLoading) {
+    setAvatarPose('thinking');
+  }
+}
+
+function setAvatarPose(pose) {
+  window.clearTimeout(avatarPoseTimer);
+  const activeFrame = avatarFrames.get(pose);
+  if (!activeFrame) {
+    console.error(`Avatar pose is unavailable: ${pose}`);
+    return;
+  }
+
+  avatarFrames.forEach((frame) => {
+    frame.classList.toggle('is-active', frame === activeFrame);
+  });
+  avatarScene.dataset.avatarState = pose;
+  avatarScene.classList.toggle('speaking', pose === 'talking');
+}
+
+function playAvatarSequence(sequence) {
+  const [current, ...remaining] = sequence;
+  if (!current) {
+    return;
+  }
+
+  setAvatarPose(current.pose);
+  if (remaining.length) {
+    avatarPoseTimer = window.setTimeout(() => {
+      playAvatarSequence(remaining);
+    }, current.duration);
+  }
+}
+
+function initializeAvatarFrames() {
+  document.querySelectorAll('.hero-avatar[data-avatar-state]').forEach((frame) => {
+    avatarFrames.set(frame.dataset.avatarState, frame);
+  });
+
+  Object.entries(avatarPoseSources).forEach(([pose, source]) => {
+    const frame = document.createElement('img');
+    frame.className = 'hero-avatar';
+    frame.dataset.avatarState = pose;
+    frame.src = source;
+    frame.alt = '';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.addEventListener('error', () => {
+      console.error(`Failed to load avatar image for pose: ${pose}`);
+      frame.remove();
+      avatarFrames.delete(pose);
+      if (avatarScene.dataset.avatarState === pose) {
+        setAvatarPose('standing');
+      }
+    });
+    avatarFrames.set(pose, frame);
+    avatarScene.querySelector('.portrait-frame').appendChild(frame);
+  });
+
+  playAvatarSequence([
+    { pose: 'greeting', duration: 2000 },
+    { pose: 'standing', duration: 0 },
+  ]);
 }
 
 function applyTheme(theme) {
@@ -95,8 +171,12 @@ function applyLanguage(lang) {
 
   document.querySelectorAll('[data-i18n-placeholder]').forEach((element) => {
     const key = element.getAttribute('data-i18n-placeholder');
-    if (text[key]) {
-      element.setAttribute('placeholder', text[key]);
+    const isMobile = window.matchMedia('(max-width: 640px)').matches;
+    const placeholder = key === 'inputPlaceholder' && isMobile
+      ? text.inputPlaceholderMobile
+      : text[key];
+    if (placeholder) {
+      element.setAttribute('placeholder', placeholder);
     }
   });
 
@@ -174,6 +254,8 @@ function addMessage(role, text, options = {}) {
 }
 
 function addInfoNotice(message, options = {}) {
+  if (!message) return;
+
   const bubble = document.createElement('div');
   bubble.className = 'info-bubble';
   if (options.intro) {
@@ -193,7 +275,10 @@ function setLoadingState(loading) {
   if (loading) {
     userInput.placeholder = translations[currentLanguage].loadingPlaceholder;
   } else {
-    userInput.placeholder = translations[currentLanguage].inputPlaceholder;
+    const text = translations[currentLanguage];
+    userInput.placeholder = window.matchMedia('(max-width: 640px)').matches
+      ? text.inputPlaceholderMobile
+      : text.inputPlaceholder;
   }
 }
 
@@ -221,8 +306,15 @@ async function sendMessage() {
     }
 
     addMessage('assistant', data.reply);
+    playAvatarSequence([
+      { pose: 'talking', duration: 1400 },
+      { pose: 'pointing', duration: 1000 },
+      { pose: 'approval', duration: 700 },
+      { pose: 'standing', duration: 0 },
+    ]);
   } catch (error) {
     addMessage('assistant', `${translations[currentLanguage].errorResponse}${error.message}`);
+    setAvatarPose('standing');
   } finally {
     setLoadingState(false);
   }
@@ -254,6 +346,16 @@ langButtons.forEach((button) => {
 initializeTheme();
 initializeLanguage();
 updateAvatarState();
+initializeAvatarFrames();
+
+if (profileDetails) {
+  const compactProfileQuery = window.matchMedia('(max-width: 640px)');
+  const updateProfileDetails = () => {
+    profileDetails.open = !compactProfileQuery.matches;
+  };
+  updateProfileDetails();
+  compactProfileQuery.addEventListener('change', updateProfileDetails);
+}
 
 const welcomeText = translations[currentLanguage].welcome;
 const welcomeMessage = addMessage('assistant', welcomeText, { intro: 'welcome' });
