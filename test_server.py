@@ -76,10 +76,16 @@ def test_curated_profile_merges_professional_facts_from_all_exports():
         "Técnico Informático",
         "Colegio Salesiano San José",
         "Certificado de Profesionalidad de nivel 3",
-        "más de 40 certificaciones y badges de Google Cloud",
+        "wallet público de Credly",
         "Certified Partner Specialist Gemini Enterprise Deployment",
         "Google Cloud Threat Intelligence",
         "AWS Certified AI Practitioner",
+        "Kiterinha Macapá",
+        "Profesor universitario",
+        "Universidad Abierta Interamericana",
+        "Accelerate Development with Antigravity",
+        "Integrate Vertex AI Search and Conversation into Voice and Chat Apps",
+        "Deploy an Agent with Agent Development Kit (ADK)",
     ):
         assert fact in profile
 

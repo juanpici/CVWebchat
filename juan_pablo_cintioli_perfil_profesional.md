@@ -52,8 +52,10 @@ Aplica GenAI, LLMs y agentes a tareas de calidad como análisis de fallos, triaj
 
 ## Experiencia profesional
 
+- **Kiterinha Macapá — Director de proyecto (enero–octubre de 2026):** dirección del proyecto para un hotel; levantamiento de requisitos funcionales y técnicos directamente con el cliente y creación de infraestructura y código para pruebas automatizadas.
 - **Capgemini Engineering — QA Automation Tester Team Lead (enero de 2023–actualidad):** automatización de pruebas en un proyecto bancario con Selenium, Robot Framework, Jenkins, Cucumber, Maven y Java; trabajo en CI/CD, gestión de equipo y seguimiento de KPI. El perfil indica cumplimiento de los KPI acordados con el cliente.
 - **Dinamita Creativa — Responsable de pruebas de aseguramiento de la calidad del software (enero de 2018–diciembre de 2022):** planificación, presupuesto y desarrollo de productos digitales; responsabilidad en testing automatizado, CI/CD y comunicación con clientes.
+- **UAI — Universidad Abierta Interamericana — Profesor universitario (abril de 2018–noviembre de 2022):** diseño y dictado de cursos de análisis financiero a pedido de la institución.
 - **Asociación Argentina de Contribuyentes — Director de proyecto (2021):** decisiones técnicas y de experiencia de usuario, seguridad y pruebas, levantamiento de requisitos funcionales y técnicos y coordinación de equipo.
 
 ## Formación académica y profesional
@@ -63,7 +65,7 @@ Aplica GenAI, LLMs y agentes a tareas de calidad como análisis de fallos, triaj
 
 ## Certificaciones, cursos y badges
 
-El perfil indica más de 40 certificaciones y badges de Google Cloud. La exportación incluye las credenciales enumeradas abajo; se han consolidado las repeticiones del mismo registro y se conservan los nombres tal como aparecen en LinkedIn. Estos cursos y badges se presentan como credenciales profesionales, no como títulos académicos.
+LinkedIn enlaza el wallet público de Credly de Juan Pablo (https://www.credly.com/users/juan-pablo-cintioli/badges), que muestra una amplia colección de badges de Google Cloud; la sección de certificaciones también registra credenciales de AWS, MongoDB y otros proveedores. El catálogo combina las credenciales de esa sección con los badges visibles en el wallet consultado; se han consolidado repeticiones del mismo registro. Los cursos y badges se presentan como credenciales profesionales, no como títulos académicos.
 
 ### Certificaciones principales
 
@@ -80,18 +82,19 @@ El perfil indica más de 40 certificaciones y badges de Google Cloud. La exporta
 
 - Certified Partner Specialist Gemini Enterprise Deployment; Certified Partner Specialist Gemini Enterprise Agent Development.
 - Add Agents to Gemini Enterprise; Govern Agent Access with Gemini Enterprise Agent Platform; Deploy Gemini Enterprise with Workspace Data Sources and Model Armor.
-- Evaluate and Improve Agent Development Kit Agents; Streamline Application Development with Gemini CLI.
+- Evaluate and Improve Agent Development Kit Agents; Deploy an Agent with Agent Development Kit (ADK); Streamline Application Development with Gemini CLI; Accelerate Development with Antigravity.
 - Generative AI Leader Certification; Google Cloud Generative Playbooks; Gen AI: Beyond the Chatbot.
 - Analyze and Reason on Multimodal Data with Gemini; Analyze Images with the Cloud Vision API Skill Badge.
-- Google Cloud: Conversational Agents; Create Conversational Agents with Stateful Flows; Build Conversational Agents with Playbooks and Flows.
-- Google Cloud: Extend Conversational Agents Functionality with Webhooks and Tools; Extend virtual agents with webhooks, tools, and Messenger integration.
+- Google Cloud: Conversational Agents; Create Conversational Agents with Stateful Flows; Build Conversational Agents with Playbooks and Flows; Build basic Conversational Agents with Playbooks and Flows; Build deterministic virtual agents enhanced with data stores.
+- Google Cloud: Extend Conversational Agents Functionality with Webhooks and Tools; Extend virtual agents with webhooks, tools, and Messenger integration; Improve customer and agent satisfaction with Agent Assist.
 - Google Cloud: Build generative virtual agents with API integrations; Leverage best practices for developing, operating, and securing production-grade agents.
 - Evaluate Gen AI model and agent performance; Custom Agent Summarization; Recommendations with AI Applications.
 - Develop Advanced Enterprise Search and Conversation Applications Skill Badge; Extend Gemini Enterprise Assistant Capabilities.
-- Build search and recommendations applications with AI Applications; Create media search and media recommendations applications with AI Applications.
+- Build search and recommendations applications with AI Applications; Create media search and media recommendations applications with AI Applications; Integrate Vertex AI Search and Conversation into Voice and Chat Apps Skill Badge.
+- Text Prompt Engineering Techniques Skill Badge; Deploy and Evaluate Model Garden Models; Edit images with Imagen.
 - Configure AI Applications to optimize search results; Deploy a RAG application with vector search in Firestore.
 - Vertex AI Search and Gemini Enterprise UI Configurations; Vertex AI Search and Gemini Enterprise Analytics.
-- Conversational Insights with Google Cloud; Analyze patterns in conversational data with Conversational Insights.
+- Conversational Insights with Google Cloud; Analyze patterns in conversational data with Customer Experience Insights.
 - AppSheet Team Hierarchy.
 
 ### Cloud, seguridad y otras credenciales técnicas
