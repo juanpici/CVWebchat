@@ -71,10 +71,11 @@ LinkedIn enlaza el wallet público de Credly de Juan Pablo (https://www.credly.c
 
 - AWS Certified Machine Learning Engineer – Associate (MLA-C01) (2026).
 - AWS Certified AI Practitioner (2026).
-- Google Cloud Generative AI Leader Certification (2025).
+- Google Cloud Generative AI Leader Certification (2025; vencimiento indicado en el perfil: noviembre de 2028).
 - Google Cybersecurity (2026).
 - MongoDB SI Associate certification (2024); también constan MongoDB SI Associate y SI Associate Quiz (2023).
-- Google Cloud Technical Badges (2025).
+- Certificado de Profesionalidad IFCT0109 Seguridad Informática, nivel 3, 500 horas (2025).
+- Google Cloud Technical Badges (2025) y más de 40 badges de Google Cloud según el perfil.
 - Emerging Leaders, Harvard Business Publishing (2024).
 - EF SET English Certificate 71/100 (C2 Proficient) (2024) y EF SET English Certificate 72/100 (2023).
 
@@ -94,7 +95,7 @@ LinkedIn enlaza el wallet público de Credly de Juan Pablo (https://www.credly.c
 - Text Prompt Engineering Techniques Skill Badge; Deploy and Evaluate Model Garden Models; Edit images with Imagen.
 - Configure AI Applications to optimize search results; Deploy a RAG application with vector search in Firestore.
 - Vertex AI Search and Gemini Enterprise UI Configurations; Vertex AI Search and Gemini Enterprise Analytics.
-- Conversational Insights with Google Cloud; Analyze patterns in conversational data with Customer Experience Insights.
+- Conversational Insights with Google Cloud; Analyze patterns in conversational data with Customer Experience Insights; Analyze patterns in conversational data with Conversational Insights.
 - AppSheet Team Hierarchy.
 
 ### Cloud, seguridad y otras credenciales técnicas
@@ -105,6 +106,7 @@ LinkedIn enlaza el wallet público de Credly de Juan Pablo (https://www.credly.c
 - Implement Cloud Security Fundamentals on Google Cloud Skill Badge; Google Cloud Security: SecOps on GDC; Google Cloud Threat Intelligence.
 - Trust and Security with Google Cloud; DevSecOps on GDC for Tier 1 and Tier 2 Analysts.
 - Web and Mobile Anti-fraud Defense; Configure and Maintain CCaaS as an Admin; Integrate Agent Assist with Telephony and Chatbot Systems.
+- AWS Lambda; MongoDB skills in vector search, data analysis, data ingestion, databases, data storage, and statistical analysis (as associated skills in LinkedIn).
 - Advanced Topics in Artificial Intelligence, University of Illinois Urbana-Champaign.
 - Scenario and Root Cause Analysis with Generative AI, Microsoft.
 - 2025-End to End Test Automation with Playwright (TS/C#/Java), Udemy.
@@ -117,6 +119,7 @@ LinkedIn enlaza el wallet público de Credly de Juan Pablo (https://www.credly.c
 - Verbal Communications and Presentation Skills, Starweaver.
 - Verb Tenses and Passives: C1 English, University of California, Irvine; Business English: Networking, University of Washington.
 - Competencias digitales para profesionales, Marketing digital, Diseño Web I y Diseño Web II, Google.
+- Financial-analysis teaching and related finance skills are documented under the UAI university lecturer experience; they are not included as core QA competencies.
 
 ## Idiomas
 

@@ -3,6 +3,19 @@ from unittest.mock import MagicMock, patch
 import server
 
 
+def test_homepage_exposes_downloadable_resume():
+    with server.app.test_client() as client:
+        page = client.get("/")
+        resume = client.get("/static/Juan_Pablo_Cintioli_SDET_CV_EN_links.pdf")
+
+    assert page.status_code == 200
+    assert b"Descargar mi CV" in page.data
+    assert b"/static/Juan_Pablo_Cintioli_SDET_CV_EN_links.pdf" in page.data
+    assert resume.status_code == 200
+    assert resume.mimetype == "application/pdf"
+    assert resume.data.startswith(b"%PDF-")
+
+
 def test_load_profile_context_uses_only_the_curated_profile_file(tmp_path):
     content = "Professional fact"
     (tmp_path / server.PROFILE_CONTEXT_FILE).write_text(content, encoding="utf-8")
