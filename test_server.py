@@ -73,8 +73,17 @@ def test_curated_profile_merges_professional_facts_from_all_exports():
         "Capgemini Engineering",
         "Dinamita Creativa",
         "Asociación Argentina de Contribuyentes",
+        "Técnico Informático",
+        "Colegio Salesiano San José",
+        "Certificado de Profesionalidad de nivel 3",
+        "más de 40 certificaciones y badges de Google Cloud",
+        "Certified Partner Specialist Gemini Enterprise Deployment",
+        "Google Cloud Threat Intelligence",
+        "AWS Certified AI Practitioner",
     ):
         assert fact in profile
+
+    assert "no contienen un historial verificable de formación académica reglada" not in profile
 
     for unrelated_content in (
         "Otros perfiles vistos por tus visitantes",
