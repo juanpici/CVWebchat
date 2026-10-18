@@ -3,48 +3,86 @@ from unittest.mock import MagicMock, patch
 import server
 
 
-def test_load_profile_context_combines_only_the_four_linkedin_files(tmp_path):
-    expected_sections = []
-    for index, filename in enumerate(server.PROFILE_CONTEXT_FILES):
-        content = f"Professional fact {index}"
-        (tmp_path / filename).write_text(content, encoding="utf-8")
-        expected_sections.append(f"### Source: {filename}\n{content}")
-
-    (tmp_path / "linkedin_profile.md").write_text(
-        "Legacy profile content must not be loaded.", encoding="utf-8"
+def test_load_profile_context_uses_only_the_curated_profile_file(tmp_path):
+    content = "Professional fact"
+    (tmp_path / server.PROFILE_CONTEXT_FILE).write_text(content, encoding="utf-8")
+    (tmp_path / "Juan Pablo Cintioli  LinkedIn (3).md").write_text(
+        "Unfiltered LinkedIn content must not be loaded.", encoding="utf-8"
     )
 
     context = server.load_profile_context(str(tmp_path))
 
-    assert context == "\n\n".join(expected_sections)
-    assert "Legacy profile content" not in context
+    assert context == f"### Source: {server.PROFILE_CONTEXT_FILE}\n{content}"
+    assert "Unfiltered LinkedIn content" not in context
 
 
-def test_load_profile_context_fails_when_a_required_linkedin_file_is_missing(tmp_path):
-    for filename in server.PROFILE_CONTEXT_FILES[:-1]:
-        (tmp_path / filename).write_text("Professional profile content", encoding="utf-8")
-
+def test_load_profile_context_fails_when_curated_profile_file_is_missing(tmp_path):
     try:
         server.load_profile_context(str(tmp_path))
     except FileNotFoundError as exc:
-        assert server.PROFILE_CONTEXT_FILES[-1] in str(exc)
+        assert server.PROFILE_CONTEXT_FILE in str(exc)
     else:
-        raise AssertionError("Missing LinkedIn source file should fail explicitly")
+        raise AssertionError("Missing curated profile file should fail explicitly")
 
 
-def test_system_prompt_uses_only_the_four_linkedin_documents(monkeypatch):
-    monkeypatch.setattr(server, "PROFILE_CONTEXT", "### Source: linkedin.md\nVerified profile fact")
+def test_load_profile_context_fails_when_curated_profile_file_is_empty(tmp_path):
+    (tmp_path / server.PROFILE_CONTEXT_FILE).write_text("  \n", encoding="utf-8")
+
+    try:
+        server.load_profile_context(str(tmp_path))
+    except ValueError as exc:
+        assert "empty" in str(exc)
+    else:
+        raise AssertionError("Empty curated profile file should fail explicitly")
+
+
+def test_system_prompt_uses_only_the_curated_profile(monkeypatch):
+    monkeypatch.setattr(
+        server,
+        "PROFILE_CONTEXT",
+        f"### Source: {server.PROFILE_CONTEXT_FILE}\nVerified profile fact",
+    )
 
     prompt = server.build_system_prompt()
 
-    assert "La única fuente autorizada de hechos" in prompt
+    assert "la ficha profesional depurada" in prompt
     assert "no uses conocimientos generales, memoria" in prompt
     assert "Verified profile fact" in prompt
 
 
-def test_loaded_system_prompt_contains_all_four_linkedin_sources():
-    for filename in server.PROFILE_CONTEXT_FILES:
-        assert f"### Source: {filename}" in server.SYSTEM_PROMPT
+def test_loaded_system_prompt_contains_only_the_curated_profile():
+    assert f"### Source: {server.PROFILE_CONTEXT_FILE}" in server.SYSTEM_PROMPT
+    assert server.PROFILE_CONTEXT in server.SYSTEM_PROMPT
+    assert "Otros perfiles vistos por tus visitantes" not in server.SYSTEM_PROMPT
+    assert "Análisis financiero" not in server.SYSTEM_PROMPT
+    assert "documentada en LinkedIn" not in server.SYSTEM_PROMPT
+
+
+def test_curated_profile_merges_professional_facts_from_all_exports():
+    profile = server.PROFILE_CONTEXT
+
+    for fact in (
+        "QA Automation",
+        "observabilidad",
+        "Grafana",
+        "Prometheus",
+        "Kubernetes",
+        "AWS Certified Machine Learning Engineer",
+        "Google Cloud Generative AI Leader",
+        "IFCT0109",
+        "Capgemini Engineering",
+        "Dinamita Creativa",
+        "Asociación Argentina de Contribuyentes",
+    ):
+        assert fact in profile
+
+    for unrelated_content in (
+        "Otros perfiles vistos por tus visitantes",
+        "Análisis financiero",
+        "Criptomoneda",
+        "Opciones de publicidad",
+    ):
+        assert unrelated_content not in profile
 
 
 def test_generate_with_gemini_retries_on_unavailable_model():
@@ -94,6 +132,12 @@ def test_generate_with_gemini_continues_incomplete_reply():
 
     assert result == "He trabajado con Selenium y Playwright, además con Java, Docker y Jenkins en CI/CD."
     assert mock_post.call_count == 2
+    system_instructions = [
+        call.kwargs["json"]["system_instruction"]["parts"][0]["text"]
+        for call in mock_post.call_args_list
+    ]
+    assert system_instructions == [server.SYSTEM_PROMPT, server.SYSTEM_PROMPT]
+    assert all(server.PROFILE_CONTEXT in instruction for instruction in system_instructions)
 
 
 def test_profile_guardrail_accepts_questions_about_documented_experience():
